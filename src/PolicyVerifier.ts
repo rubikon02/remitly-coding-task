@@ -48,12 +48,23 @@ class PolicyVerifier {
         }
 
         if (typeof policy['PolicyDocument']['Statement'] != 'object') {
-            throw new Error('Statement must be an object');
+            throw new Error('Statement must be an array');
+        }
+
+        if (policy['PolicyDocument']['Statement'].length == 0) {
+            throw new Error('There must be at least one statement');
         }
 
         for (const statement of policy['PolicyDocument']['Statement']) {
             if (typeof statement != 'object') {
                 throw new Error('Every statement must contain Effect');
+            }
+
+            if (statement.hasOwnProperty('Sid')) {
+                const sidPattern = /^[a-zA-Z0-9]+$/
+                if (!sidPattern.test(statement['Sid'])) {
+                    throw new Error(`Sid must match pattern ${sidPattern}`);
+                }
             }
 
             if (!statement.hasOwnProperty('Effect')) {
@@ -62,6 +73,18 @@ class PolicyVerifier {
 
             if (!['Allow', 'Deny'].includes(statement['Effect'])) {
                 throw new Error('Every effect must be "Allow" or "Deny"');
+            }
+
+            if (!statement.hasOwnProperty('Action') && !statement.hasOwnProperty('NotAction')) {
+                throw new Error('Every statement must contain Action or NotAction');
+            }
+
+            if (statement.hasOwnProperty('NotPrincipal') && statement["Effect"] != "Deny") {
+                throw new Error('NotPrincipal must be used with Effect: Deny');
+            }
+
+            if (!statement.hasOwnProperty('Resource') && !statement.hasOwnProperty('NotResource')) {
+                throw new Error('Every statement must contain Resource or NotResource');
             }
 
             if (statement['Resource'] == '*') {

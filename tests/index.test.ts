@@ -6,13 +6,18 @@ function filePath(filename: string) {
     return path.join(__dirname, 'data', filename);
 }
 
-describe('Correct policy', () => {
-    it('should pass', () => {
+describe('Valid policy', () => {
+    it('should return false with single asterisk', () => {
         const policyPath = filePath('asterisk.json');
         expect(PolicyVerifier.verify(policyPath)).toBeFalsy();
     });
 
-    it('should not pass', () => {
+    it('should return true with multiple asterisks', () => {
+        const policyPath = filePath('multipleAsterisks.json');
+        expect(PolicyVerifier.verify(policyPath)).toBeTruthy();
+    });
+
+    it('should return true with no asterisks', () => {
         const policyPath = filePath('noAsterisk.json');
         expect(PolicyVerifier.verify(policyPath)).toBeTruthy();
     });
@@ -89,9 +94,19 @@ describe('PolicyDocument', () => {
             expect(() => PolicyVerifier.verify(policyPath)).toThrow('PolicyDocument must contain Statement');
         });
 
-        it('should be an object', () => {
+        it('should be an array', () => {
             const policyPath = filePath('invalidStatementType.json');
-            expect(() => PolicyVerifier.verify(policyPath)).toThrow('Statement must be an object');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow('Statement must be an array');
+        });
+
+        it('should be at least one', () => {
+            const policyPath = filePath('emptyStatement.json');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow('There must be at least one statement');
+        });
+
+        it('its Sid should match pattern if exists', () => {
+            const policyPath = filePath('invalidSid.json');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow(`Sid must match pattern ${/^[a-zA-Z0-9]+$/}`);
         });
 
         it('should contain Effect', () => {
@@ -103,5 +118,21 @@ describe('PolicyDocument', () => {
             const policyPath = filePath('invalidEffect.json');
             expect(() => PolicyVerifier.verify(policyPath)).toThrow('Every effect must be "Allow" or "Deny"');
         });
+
+        it('should contain Action or NotAction', () => {
+            const policyPath = filePath('noAction.json');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow('Every statement must contain Action or NotAction');
+        });
+
+        it('its NotPrincipal should be used with Effect: Deny', () => {
+            const policyPath = filePath('invalidNotPrincipal.json');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow('NotPrincipal must be used with Effect: Deny');
+        });
+
+        it('should contain Resource or NotResource', () => {
+            const policyPath = filePath('invalidResource.json');
+            expect(() => PolicyVerifier.verify(policyPath)).toThrow('Every statement must contain Resource or NotResource');
+        });
+
     })
 });
