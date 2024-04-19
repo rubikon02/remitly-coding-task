@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "npx tsx src/index.ts",
+    "verify": "npx tsx src/index.ts",
     "test": "jest"
   },
   "keywords": [],
