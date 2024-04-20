@@ -34,19 +34,11 @@ To verify the policy from the file, execute:
 npm run verify <file_path>
 ```
 
-
-### Examples:
-
-Correct policy:
+Examples:
 
 ```
-npm run verify tests/data/noAsterisk.json
-```
-
-Incorrect policy:
-
-```
-npm run verify tests/data/asterisk.json
+npm run verify tests/data/noAsterisk.json  # Correct policy
+npm run verify tests/data/asterisk.json    # Incorrect policy
 ```
 
 
