@@ -34,7 +34,7 @@ To verify the policy from the file, execute:
 npm run verify <file_path>
 ```
 
-Examples:
+Example:
 
 ```
 npm run verify tests/data/noAsterisk.json  # Correct policy
